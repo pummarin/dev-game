@@ -1,0 +1,4 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #17221d; }
+* { box-sizing: border-box; }
+html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+#app canvas { display: block; outline: none; }
