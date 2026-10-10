@@ -1,0 +1,184 @@
+{
+  "idle": "prototype/public/assets/frontier-traveler-idle-prototype.png",
+  "assetDirectory": "prototype/public/assets/traveler-run-5dir/",
+  "format": "PNG RGBA",
+  "frameSize": [
+    1254,
+    1254
+  ],
+  "sharedPivotReference": [
+    627,
+    1180
+  ],
+  "generationOrder": [
+    "SW",
+    "S",
+    "W",
+    "NW",
+    "N"
+  ],
+  "directions": {
+    "SW": {
+      "movement": "down-left",
+      "frames": [
+        "SW-01.png",
+        "SW-02.png",
+        "SW-03.png",
+        "SW-04.png",
+        "SW-05.png",
+        "SW-06.png",
+        "SW-07.png"
+      ],
+      "sheet": "traveler-SW-run-7.png",
+      "sheetSize": [
+        5016,
+        2508
+      ],
+      "layout": "4 columns × 2 rows; 01–04 row 1, 05–07 row 2 columns 1–3, final cell transparent"
+    },
+    "S": {
+      "movement": "down",
+      "frames": [
+        "S-01.png",
+        "S-02.png",
+        "S-03.png",
+        "S-04.png",
+        "S-05.png",
+        "S-06.png",
+        "S-07.png"
+      ],
+      "sheet": "traveler-S-run-7.png",
+      "sheetSize": [
+        5016,
+        2508
+      ],
+      "layout": "4 columns × 2 rows; 01–04 row 1, 05–07 row 2 columns 1–3, final cell transparent"
+    },
+    "W": {
+      "movement": "left",
+      "frames": [
+        "W-01.png",
+        "W-02.png",
+        "W-03.png",
+        "W-04.png",
+        "W-05.png",
+        "W-06.png",
+        "W-07.png"
+      ],
+      "sheet": "traveler-W-run-7.png",
+      "sheetSize": [
+        5016,
+        2508
+      ],
+      "layout": "4 columns × 2 rows; 01–04 row 1, 05–07 row 2 columns 1–3, final cell transparent"
+    },
+    "NW": {
+      "movement": "up-left",
+      "frames": [
+        "NW-01.png",
+        "NW-02.png",
+        "NW-03.png",
+        "NW-04.png",
+        "NW-05.png",
+        "NW-06.png",
+        "NW-07.png"
+      ],
+      "sheet": "traveler-NW-run-7.png",
+      "sheetSize": [
+        5016,
+        2508
+      ],
+      "layout": "4 columns × 2 rows; 01–04 row 1, 05–07 row 2 columns 1–3, final cell transparent"
+    },
+    "N": {
+      "movement": "up",
+      "frames": [
+        "N-01.png",
+        "N-02.png",
+        "N-03.png",
+        "N-04.png",
+        "N-05.png",
+        "N-06.png",
+        "N-07.png"
+      ],
+      "sheet": "traveler-N-run-7.png",
+      "sheetSize": [
+        5016,
+        2508
+      ],
+      "layout": "4 columns × 2 rows; 01–04 row 1, 05–07 row 2 columns 1–3, final cell transparent"
+    }
+  },
+  "durationMsPerFrame": 100,
+  "loop": true,
+  "status": "generated-unreviewed",
+  "qualityReviewed": false,
+  "sourceReferences": "C:/Users/pumma/Downloads/references/references/pixeline-run-frames/directions/{DIRECTION}-{FRAME}.png",
+  "promptLog": "generation-prompts.md",
+  "eightDirectionAliases": {
+    "E": {
+      "mirrorOf": "W"
+    },
+    "NE": {
+      "mirrorOf": "NW"
+    },
+    "SE": {
+      "mirrorOf": "SW"
+    }
+  },
+  "note": "Mirroring is a runtime direction alias only. Original generated PNGs remain unmirrored. Identity/back details not visible in the idle prototype were not intentionally added. Visual quality and in-game behavior have not been reviewed.",
+  "integration": {
+    "runtimeIdle": "public/assets/frontier-traveler-idle-prototype.png",
+    "runtimeSheets": "public/assets/traveler-run-5dir/traveler-{DIRECTION}-run-7.png",
+    "sharedRuntimeModule": "src/traveler-controller.ts",
+    "animationKeys": "run-S, run-SW, run-W, run-NW, run-N; registered from frames 0–6 at 10 fps, looping",
+    "futureMapIntegration": "call preloadTraveler(scene) in preload(), registerTravelerAnimations(scene) in create(), then create TravelerController with that map's pixel bounds",
+    "framesLoaded": "0–6 only; transparent frame 7 excluded",
+    "frameDurationMs": 100,
+    "frameRateFps": 10,
+    "displaySizePx": 110,
+    "scale": "110/1254",
+    "originPixels": [
+      627,
+      1180
+    ],
+    "originRatio": [
+      "627/1254",
+      "1180/1254"
+    ],
+    "directionMapping": {
+      "NW": "NW",
+      "SE": "SW + flipX",
+      "W": "W",
+      "SW": "SW",
+      "S": "S",
+      "NE": "NW + flipX",
+      "N": "N",
+      "E": "W + flipX"
+    },
+    "controls": {
+      "D": "east",
+      "S": "south",
+      "A": "west",
+      "diagonals": "normalized to straight speed",
+      "W": "north"
+    },
+    "movementSpeed": 220,
+    "idle": "original prototype idle; no 8-direction idle generated",
+    "depth": "player depth follows world base Y (1 + player.y); no scene world objects available for occlusion test",
+    "qualityReviewed": false,
+    "status": "generated-unreviewed"
+  },
+  "runtimeVerification": {
+    "build": "passed: npm run build (tsc -b and vite build)",
+    "browser": "opened http://127.0.0.1:5173/; idle rendered; run sheets/idle produced no browser console errors or warnings",
+    "input": "brief W press moved player; release returned to original idle",
+    "animationRegistration": "implemented in reusable shared controller; not re-tested after the integration fix",
+    "sustainedDirectionalMatrix": "not fully exercised: browser control exposed only brief press/release, not held-key input",
+    "flipTransitionMatrix": "implemented in source; rapid held-key pairs not dynamically verified",
+    "diagonalSpeedMeasurement": "normalization inspected in source; timed straight-vs-diagonal comparison not performed",
+    "focusLoss": "listeners/reset logic present; native window blur not manually induced",
+    "depthOcclusion": "base-Y depth logic implemented; not visually testable because scene has no foreground/background objects",
+    "imageQuality": "not reviewed"
+  }
+}

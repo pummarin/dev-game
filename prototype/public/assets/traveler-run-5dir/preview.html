@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traveler Run Preview</title>
+<style>
+  :root{color-scheme:light dark;font-family:system-ui,sans-serif} body{margin:24px;background:#1c211f;color:#f3eee3}
+  h1{margin-bottom:4px} p{color:#c9c4b9}.controls{position:sticky;top:0;background:#1c211f;padding:12px 0;z-index:2}
+  button{font:inherit;padding:8px 14px;margin-right:8px}.dir{border-top:1px solid #59615b;padding:18px 0}
+  .views{display:flex;gap:24px;align-items:end;flex-wrap:wrap}.stage{display:flex;flex-direction:column;gap:8px;align-items:center}
+  .checker{background-color:#555;background-image:linear-gradient(45deg,#777 25%,transparent 25%),linear-gradient(-45deg,#777 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#777 75%),linear-gradient(-45deg,transparent 75%,#777 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+  img.sprite{object-fit:contain;display:block}.small{width:110px;height:110px}.large{width:440px;height:440px}.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.links a{color:#9ee5d0}
+</style>
+</head>
+<body>
+<h1>Traveler run — 5 directions</h1>
+<p>Loop preview: 7 frames per direction at 100 ms each. Original PNGs link below; image quality is marked unreviewed.</p>
+<div class="controls"><button id="toggle">Pause</button><button id="step">Next frame</button> <span id="status">Playing · 100 ms/frame</span></div>
+<section class="dir" id="idle">
+  <h2>Idle — prototype</h2>
+  <div class="views"><div class="stage">110 px<img class="sprite checker small" src="../frontier-traveler-idle-prototype.png" alt="idle prototype 110 px"></div><div class="stage">Enlarged<img class="sprite checker large" src="../frontier-traveler-idle-prototype.png" alt="idle prototype enlarged"></div></div>
+  <p><a href="../frontier-traveler-idle-prototype.png">Open idle PNG</a></p>
+</section>
+<div id="animations"></div>
+<script>
+const dirs=["SW","S","W","NW","N"];
+const host=document.getElementById("animations");
+const players=[];
+for(const d of dirs){
+  const section=document.createElement("section"); section.className="dir";
+  const h=document.createElement("h2"); h.textContent=`${d} — ${d==="SW"?"down-left":d==="S"?"down":d==="W"?"left":d==="NW"?"up-left":"up"}`;
+  const views=document.createElement("div"); views.className="views";
+  const smallStage=document.createElement("div"); smallStage.className="stage"; smallStage.append("110 px");
+  const small=document.createElement("img"); small.className="sprite checker small"; small.alt=`${d} 110 px`; smallStage.append(small);
+  const largeStage=document.createElement("div"); largeStage.className="stage"; largeStage.append("Enlarged");
+  const large=document.createElement("img"); large.className="sprite checker large"; large.alt=`${d} enlarged`; largeStage.append(large);
+  views.append(smallStage,largeStage);
+  const links=document.createElement("div"); links.className="links";
+  const frames=Array.from({length:7},(_,i)=>`${d}-${String(i+1).padStart(2,"0")}.png`);
+  for(const f of frames){const a=document.createElement("a"); a.href=f;a.textContent=f; links.append(a)}
+  const sheet=document.createElement("a"); sheet.href=`traveler-${d}-run-7.png`;sheet.textContent=`Sheet ${d}`; links.append(sheet);
+  section.append(h,views,links); host.append(section);
+  players.push({d,frames,index:0,small,large});
+}
+function show(p){const f=p.frames[p.index];p.small.src=f;p.large.src=f;p.small.title=f;p.large.title=f}
+players.forEach(show);
+let timer=setInterval(()=>players.forEach(p=>{p.index=(p.index+1)%p.frames.length;show(p)}),100);
+let playing=true;
+document.getElementById("toggle").onclick=()=>{playing=!playing;if(playing){timer=setInterval(()=>players.forEach(p=>{p.index=(p.index+1)%p.frames.length;show(p)}),100)}else clearInterval(timer);document.getElementById("toggle").textContent=playing?"Pause":"Play";document.getElementById("status").textContent=playing?"Playing · 100 ms/frame":"Paused"};
+document.getElementById("step").onclick=()=>players.forEach(p=>{p.index=(p.index+1)%p.frames.length;show(p)});
+</script>
+</body>
+</html>

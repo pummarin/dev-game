@@ -1,0 +1,37 @@
+{
+  "id": "frontier-traveler-equipment-layers-front-idle",
+  "version": 1,
+  "status": "prototype",
+  "baseCharacter": "/assets/frontier-traveler-idle-prototype.png",
+  "canvas": {
+    "width": 1254,
+    "height": 1254,
+    "transparent": true,
+    "coordinateSpace": "base-character-image-pixels"
+  },
+  "layers": [
+    {
+      "id": "armor",
+      "file": "/assets/equipment/layers/armor-torso-aligned.png",
+      "order": 10,
+      "previewTransform": { "x": 167, "y": 94, "scale": 0.72 }
+    },
+    {
+      "id": "weapon",
+      "file": "/assets/equipment/layers/sword-right-hand.png",
+      "order": 20,
+      "previewTransform": { "x": 28, "y": 135, "scale": 0.86 }
+    },
+    {
+      "id": "shield",
+      "file": "/assets/equipment/layers/shield-left-arm.png",
+      "order": 30,
+      "previewTransform": { "x": 476, "y": 236, "scale": 0.43 }
+    }
+  ],
+  "limitations": [
+    "Static front-facing pose only; these assets do not yet cover run animation frames or other directions.",
+    "previewTransform values are starting estimates and require visual tuning in the game.",
+    "The layers are generated concept art and are not pixel-perfect cutouts of the source character."
+  ]
+}

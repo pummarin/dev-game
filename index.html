@@ -3,11 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#17221d" />
-    <title>Dragon Hunt — ทดลองเดิน</title>
+    <meta name="theme-color" content="#102019" />
+    <title>Dragon Hunt — Frontier of Power</title>
   </head>
   <body>
     <div id="app" aria-label="ฉากทดลองเดิน"></div>
+    <section id="loading-screen" class="loading-screen" role="status" aria-live="polite" aria-label="กำลังโหลดเกม">
+      <div class="loading-screen__shade" aria-hidden="true"></div>
+      <div class="loading-panel">
+        <div class="loading-panel__crest" aria-hidden="true">
+          <svg viewBox="0 0 72 72" fill="none">
+            <circle cx="36" cy="36" r="29" />
+            <circle cx="36" cy="36" r="22" />
+            <path d="M36 10 41 31 62 36 41 41 36 62 31 41 10 36 31 31 36 10Z" />
+            <circle cx="36" cy="36" r="4" />
+          </svg>
+        </div>
+        <p class="loading-panel__eyebrow">FRONTIER OF POWER</p>
+        <h1>DRAGON HUNT</h1>
+        <p class="loading-panel__subtitle">กำลังเตรียมเมืองด่านธารา</p>
+        <div class="loading-progress" role="progressbar" aria-label="ความคืบหน้าการโหลด" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span id="loading-progress-fill"></span>
+        </div>
+        <div class="loading-panel__status">
+          <span id="loading-message">กำลังเตรียมแผนที่และตัวละคร…</span>
+          <span id="loading-percent">0%</span>
+        </div>
+        <p id="loading-error" class="loading-panel__error" hidden></p>
+      </div>
+      <span class="loading-screen__corner loading-screen__corner--tl" aria-hidden="true"></span>
+      <span class="loading-screen__corner loading-screen__corner--br" aria-hidden="true"></span>
+    </section>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

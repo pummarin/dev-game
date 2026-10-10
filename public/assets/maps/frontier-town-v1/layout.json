@@ -1,0 +1,52 @@
+{
+  "id": "frontier-town",
+  "widthH": 48,
+  "heightH": 32,
+  "pixelsPerH": 110,
+  "source": "LOCAL-MAP-BRIEF.md, 48 x 32 H (recorded there as an estimate); pixelsPerH follows the current 110 px character frame.",
+  "spawnH": [
+    24,
+    18
+  ],
+  "plazaH": {
+    "center": [
+      24,
+      16
+    ],
+    "size": [
+      8,
+      6
+    ]
+  },
+  "roadRingH": {
+    "center": [
+      24,
+      16
+    ],
+    "innerRadii": [
+      4.5,
+      3.5
+    ],
+    "outerRadii": [
+      8.5,
+      7.5
+    ]
+  },
+  "warpGateH": [
+    43,
+    5
+  ],
+  "exits": [
+    {
+      "id": "frontier-town-to-old-bridge",
+      "targetSceneKey": "old-bridge",
+      "triggerH": [
+        42,
+        4,
+        2,
+        2
+      ],
+      "arrivalSpawnId": "from-frontier-town"
+    }
+  ]
+}

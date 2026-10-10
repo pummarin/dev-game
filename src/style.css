@@ -1,4 +1,110 @@
 :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #17221d; }
 * { box-sizing: border-box; }
 html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+#app { position: relative; }
 #app canvas { display: block; outline: none; }
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #f1ead8;
+  background: #102019;
+  isolation: isolate;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 650ms ease, visibility 650ms ease;
+}
+.loading-screen::before,
+.loading-screen__shade {
+  position: absolute;
+  z-index: -1;
+  inset: -1.5%;
+  content: "";
+}
+.loading-screen::before {
+  background: url('/assets/world-map-brief-frontier-of-power-routes-complete.png') center 48% / cover no-repeat;
+  filter: brightness(.47) saturate(.72) blur(1.5px);
+  transform: scale(1.015);
+  animation: map-arrive 1.2s ease-out both;
+}
+.loading-screen__shade {
+  background:
+    radial-gradient(ellipse at center, rgba(10, 22, 17, .28), rgba(8, 18, 14, .82) 76%),
+    linear-gradient(120deg, rgba(10, 28, 19, .38), rgba(26, 35, 22, .12) 48%, rgba(9, 22, 18, .58));
+}
+.loading-panel {
+  width: min(500px, calc(100vw - 36px));
+  padding: 34px 38px 30px;
+  text-align: center;
+  background: linear-gradient(145deg, rgba(16, 31, 24, .91), rgba(26, 38, 28, .84));
+  border: 1px solid rgba(218, 181, 105, .58);
+  border-radius: 8px;
+  box-shadow: 0 28px 100px rgba(0, 0, 0, .5), inset 0 0 0 5px rgba(220, 189, 127, .045);
+  backdrop-filter: blur(10px);
+  animation: panel-arrive 650ms cubic-bezier(.2, .8, .2, 1) both;
+}
+.loading-panel__crest {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 12px;
+  color: #dcbf7a;
+}
+.loading-panel__crest svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.5; }
+.loading-panel__crest circle:last-child { fill: currentColor; }
+.loading-panel__eyebrow {
+  margin: 0 0 7px;
+  color: #d6bd83;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .28em;
+}
+.loading-panel h1 {
+  margin: 0;
+  color: #f4ead1;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(29px, 6vw, 40px);
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-shadow: 0 2px 18px rgba(228, 180, 89, .19);
+}
+.loading-panel__subtitle { margin: 10px 0 28px; color: #c7c8ad; font-size: 14px; letter-spacing: .06em; }
+.loading-progress {
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(214, 188, 128, .46);
+  border-radius: 99px;
+  background: rgba(4, 13, 10, .68);
+}
+.loading-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #68875b, #c8ad69 88%);
+  box-shadow: 0 0 15px rgba(207, 180, 109, .48);
+  transition: width 180ms ease-out;
+}
+.loading-panel__status { display: flex; justify-content: space-between; gap: 14px; margin-top: 11px; color: #c9cdbb; font-size: 12px; }
+.loading-panel__status span:last-child { flex: none; color: #e0c37d; font-variant-numeric: tabular-nums; }
+.loading-panel__error { margin: 14px 0 0; color: #f0b6a0; font-size: 12px; }
+.loading-screen__corner { position: absolute; width: 38px; height: 38px; border-color: rgba(220, 191, 122, .55); }
+.loading-screen__corner--tl { top: 22px; left: 22px; border-top: 1px solid; border-left: 1px solid; }
+.loading-screen__corner--br { right: 22px; bottom: 22px; border-right: 1px solid; border-bottom: 1px solid; }
+.loading-screen.is-ready { opacity: 0; visibility: hidden; pointer-events: none; }
+
+@keyframes map-arrive { from { opacity: .55; transform: scale(1.06); } to { opacity: 1; transform: scale(1.015); } }
+@keyframes panel-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 520px) {
+  .loading-panel { padding: 28px 23px 25px; }
+  .loading-panel__subtitle { margin-bottom: 23px; }
+  .loading-screen__corner { width: 24px; height: 24px; }
+  .loading-screen__corner--tl { top: 12px; left: 12px; }
+  .loading-screen__corner--br { right: 12px; bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen, .loading-screen::before, .loading-panel, .loading-progress span { animation: none; transition-duration: .01ms; }
+}
