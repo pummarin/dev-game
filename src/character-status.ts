@@ -101,6 +101,16 @@ export class CharacterStatus {
     return restored;
   }
 
+  takeDamage(rawAmount: number) {
+    if (!Number.isFinite(rawAmount) || rawAmount <= 0) return 0;
+    const defense = this.derived(this.attributes).physicalDefense;
+    const damage = Math.max(1, Math.floor(rawAmount) - defense);
+    const before = this.currentHp;
+    this.currentHp = Math.max(0, this.currentHp - damage);
+    if (this.currentHp !== before) this.emit();
+    return before - this.currentHp;
+  }
+
   restoreMp(amount: number) {
     if (!Number.isFinite(amount) || amount <= 0) return 0;
     const before = this.currentMp;

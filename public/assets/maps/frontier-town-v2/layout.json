@@ -1,0 +1,26 @@
+{
+  "id": "frontier-town",
+  "widthH": 30,
+  "heightH": 20,
+  "pixelsPerH": 103,
+  "source": "1H = 1C = 103px (visible character height from S-run frame alpha bounds: 1177px in 1254px canvas at 110px display)",
+  "spawnH": [15, 13],
+  "plazaH": {
+    "center": [15, 10],
+    "size": [5, 4]
+  },
+  "roadRingH": {
+    "center": [15, 10],
+    "innerRadii": [2.5, 2.0],
+    "outerRadii": [4.5, 3.8]
+  },
+  "warpGateH": [27, 3],
+  "exits": [
+    {
+      "id": "frontier-town-to-old-bridge",
+      "targetSceneKey": "old-bridge",
+      "triggerH": [26, 2, 2, 2],
+      "arrivalSpawnId": "from-frontier-town"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <!-- Map outline -->
+  <rect x="5" y="8" width="30" height="24" rx="2" fill="#e6d39d" stroke="#c4a96a" stroke-width="1.5"/>
+  <!-- Fold lines -->
+  <line x1="15" y1="8" x2="15" y2="32" stroke="#c4a96a" stroke-width="1.5"/>
+  <line x1="25" y1="8" x2="25" y2="32" stroke="#c4a96a" stroke-width="1.5"/>
+  <!-- Location pin -->
+  <circle cx="20" cy="17" r="3" fill="#c4a96a"/>
+  <line x1="20" y1="20" x2="20" y2="25" stroke="#c4a96a" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

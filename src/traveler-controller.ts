@@ -1,21 +1,58 @@
 import Phaser from 'phaser';
 
-export const TRAVELER_IDLE_KEY = 'traveler-idle';
-export const TRAVELER_IDLE_PATH = '/assets/frontier-traveler-idle-prototype.png';
+// ── Sprite sheet specs ─────────────────────────────────────────────────────
+//
+// idle.png   1254×1254 — 2×2 grid, cell 627×627
+//   (col,row): S=(0,0)  W=(1,0)  N=(0,1)  E=(1,1)
+//
+// walk-corrected.png — 6 cols × 4 rows, cell 256×256; W row is mirrored to face left
+//   row 0=N  row 1=W  row 2=S  row 3=E
+//
+// attack-normalized.png — 5 cols × 4 rows, 360×320 frames with transparent padding
+//   row 0=N  row 1=E  row 2=S  row 3=W
+//   No flip — E and W are drawn separately.
 
-const RUN_DIRECTIONS = ['S', 'SW', 'W', 'NW', 'N'] as const;
-const ATTACK_DIRECTIONS = ['S', 'W', 'N'] as const;
-const FRAME_SIZE = 1254;
-const FRAME_COUNT = 7;
-const ATTACK_FRAME_COUNT = 4;
-const ATTACK_FRAME_SIZE: Record<(typeof ATTACK_DIRECTIONS)[number], number> = {
-  S: 627,
-  W: 627,
-  N: 627,
-};
+const CHAR_ROOT = '/assets/character/';
 
+// Walk sheet
+const WALK_COLS = 6;
+const WALK_CELL = 256;
+// Row order confirmed from sprite: N=0, W=1, S=2, E=3
+const WALK_DIR_ROW: Record<'N' | 'E' | 'S' | 'W', number> = { N: 0, W: 1, S: 2, E: 3 };
+
+// Attack sheet
+const ATTACK_COLS = 5;
+const ATTACK_SOURCE_CELL = 280;
+const ATTACK_FRAME_WIDTH = 360;
+const ATTACK_FRAME_HEIGHT = 320;
+const ATTACK_PADDING_X = 24;
+const ATTACK_PADDING_Y = 24;
+// Row order differs from walk sheet: N=0, E=1, S=2, W=3
+const ATTACK_DIR_ROW: Record<'N' | 'E' | 'S' | 'W', number> = { N: 0, E: 1, S: 2, W: 3 };
+
+// ── Origin Y per sheet (foot anchor relative to cell height) ─────────────
+// Measured from alpha bounds of S-facing frames
+const ORIGIN_Y_IDLE = 0.942; // idle sheet 627×627
+const ORIGIN_Y_WALK = 0.925; // walk sheet 256×256
+const ORIGIN_X = 0.5;          // horizontal centre for all sheets
+const ORIGIN_X_ATTACK = (ATTACK_PADDING_X + ORIGIN_X * ATTACK_SOURCE_CELL) / ATTACK_FRAME_WIDTH;
+const ORIGIN_Y_ATTACK = (ATTACK_PADDING_Y + 0.918 * ATTACK_SOURCE_CELL) / ATTACK_FRAME_HEIGHT;
+
+// Idle sheet — static frames per direction
+const IDLE_CELL = 627;
+// Confirmed by pixel analysis (hair/shield position):
+// Frame 0=(col0,row0)=S  Frame 1=(col1,row0)=W
+// Frame 2=(col0,row1)=N  Frame 3=(col1,row1)=E
+const IDLE_DIR_FRAME: Record<'N' | 'E' | 'S' | 'W', number> = { S: 0, W: 1, N: 2, E: 3 };
+
+const CARDINAL_DIRS = ['N', 'E', 'S', 'W'] as const;
+type CardinalDir = (typeof CARDINAL_DIRS)[number];
 type Direction = 'S' | 'SW' | 'W' | 'NW' | 'N' | 'SE' | 'E' | 'NE';
 type MovementKeys = Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
+
+// Legacy export used by frontier-town-map.ts for portrait image
+export const TRAVELER_IDLE_KEY = 'traveler-idle-S';
+export const TRAVELER_IDLE_PATH = `${CHAR_ROOT}idle.png`;
 
 export type TravelerControllerOptions = {
   mapWidth: number;
@@ -24,50 +61,51 @@ export type TravelerControllerOptions = {
   colliders?: Array<{ x: number; y: number; width: number; height: number }>;
 };
 
-/** Load shared character textures in each playable map scene's preload(). */
+/** Load character textures. Call once per scene in preload(). */
 export function preloadTraveler(scene: Phaser.Scene) {
-  scene.load.image(TRAVELER_IDLE_KEY, TRAVELER_IDLE_PATH);
-  for (const direction of RUN_DIRECTIONS) {
-    scene.load.spritesheet(`run-sheet-${direction}`, `/assets/traveler-run-5dir/traveler-${direction}-run-7.png`, {
-      frameWidth: FRAME_SIZE,
-      frameHeight: FRAME_SIZE,
-      margin: 0,
-      spacing: 0,
-    });
-  }
-  for (const direction of ATTACK_DIRECTIONS) {
-    const frameSize = ATTACK_FRAME_SIZE[direction];
-    const attackPath = direction === 'W'
-      ? '/assets/attacks/traveler-attack-W-normalized.png'
-      : `/assets/attacks/traveler-attack-${direction}.png`;
-    scene.load.spritesheet(`attack-sheet-${direction}`, attackPath, {
-      frameWidth: frameSize,
-      frameHeight: frameSize,
-      margin: 0,
-      spacing: 0,
-    });
-  }
+  // The original side-facing rows both face right; W is mirrored in the corrected sheet.
+  scene.load.spritesheet('walk-sheet', `${CHAR_ROOT}walk-corrected.png`, {
+    frameWidth: WALK_CELL,
+    frameHeight: WALK_CELL,
+  });
+  // Isolated attack frames retain sword pixels that crossed the original grid cuts.
+  scene.load.spritesheet('attack-sheet', `${CHAR_ROOT}attack-normalized.png`, {
+    frameWidth: ATTACK_FRAME_WIDTH,
+    frameHeight: ATTACK_FRAME_HEIGHT,
+  });
+  // Idle sheet — load as spritesheet so we can use individual frames
+  scene.load.spritesheet('idle-sheet', `${CHAR_ROOT}idle.png`, {
+    frameWidth: IDLE_CELL,
+    frameHeight: IDLE_CELL,
+  });
 }
 
-/** Register the shared run animations once per Phaser game, after preload completes. */
+/** Register walk and attack animations. Call once per scene in create(). */
 export function registerTravelerAnimations(scene: Phaser.Scene) {
-  for (const direction of RUN_DIRECTIONS) {
-    const key = `run-${direction}`;
-    if (!scene.anims.exists(key)) {
+  for (const dir of CARDINAL_DIRS) {
+    const row = WALK_DIR_ROW[dir];
+    const walkKey = `walk-${dir}`;
+    if (!scene.anims.exists(walkKey)) {
       scene.anims.create({
-        key,
-        frames: scene.anims.generateFrameNumbers(`run-sheet-${direction}`, { start: 0, end: FRAME_COUNT - 1 }),
+        key: walkKey,
+        frames: scene.anims.generateFrameNumbers('walk-sheet', {
+          start: row * WALK_COLS,
+          end: row * WALK_COLS + WALK_COLS - 1,
+        }),
         frameRate: 10,
         repeat: -1,
       });
     }
-  }
-  for (const direction of ATTACK_DIRECTIONS) {
-    const attackKey = `attack-${direction}`;
-    if (!scene.anims.exists(attackKey)) {
+
+    const atkRow = ATTACK_DIR_ROW[dir];
+    const atkKey = `attack-${dir}`;
+    if (!scene.anims.exists(atkKey)) {
       scene.anims.create({
-        key: attackKey,
-        frames: scene.anims.generateFrameNumbers(`attack-sheet-${direction}`, { start: 0, end: ATTACK_FRAME_COUNT - 1 }),
+        key: atkKey,
+        frames: scene.anims.generateFrameNumbers('attack-sheet', {
+          start: atkRow * ATTACK_COLS,
+          end: atkRow * ATTACK_COLS + ATTACK_COLS - 1,
+        }),
         frameRate: 10,
         repeat: 0,
       });
@@ -75,20 +113,18 @@ export function registerTravelerAnimations(scene: Phaser.Scene) {
   }
 }
 
-/** Map-independent WASD movement and eight-way run animation for a map's traveler sprite. */
+/** Map-independent WASD movement with 4-directional walk/attack animations. */
 export class TravelerController {
   private readonly keys: MovementKeys;
   private speed: number;
   private inputFocused = true;
   private currentDirection: Direction | null = null;
-  private lastDirection: Direction = 'S';
+  private lastCardinal: CardinalDir = 'S';
   private currentAnimationKey: string | null = null;
   private attacking = false;
   private attackHitTimer?: Phaser.Time.TimerEvent;
   private readonly baseDisplayWidth: number;
   private readonly baseDisplayHeight: number;
-  private readonly baseOriginX: number;
-  private readonly baseOriginY: number;
   private readonly canvas: HTMLCanvasElement;
   private moveTarget: { x: number; y: number; arrivalDistance: number } | null = null;
 
@@ -114,8 +150,6 @@ export class TravelerController {
     this.canvas = scene.game.canvas;
     this.baseDisplayWidth = sprite.displayWidth;
     this.baseDisplayHeight = sprite.displayHeight;
-    this.baseOriginX = sprite.originX;
-    this.baseOriginY = sprite.originY;
 
     keyboard.on('keydown', this.onKeyDown);
     this.canvas.tabIndex = 0;
@@ -161,22 +195,26 @@ export class TravelerController {
     this.sprite.setDepth(1 + this.sprite.y);
 
     const direction = this.getDirection(x, y);
-    this.lastDirection = direction;
-    // Set this on every update so a mirrored direction alias switches immediately,
-    // even when it shares the same base animation key (for example W ↔ E).
-    this.sprite.setFlipX(direction === 'E' || direction === 'NE' || direction === 'SE');
-    const animationKey = this.getAnimationKey(direction);
-    if (!this.scene.anims.exists(animationKey)) {
-      console.error(`Traveler animation is not registered: ${animationKey}`);
+    const cardinal = this.toCardinal(direction);
+    this.lastCardinal = cardinal;
+    this.currentDirection = direction;
+
+    // No flip — E and W are separate rows
+    this.sprite.setFlipX(false);
+
+    const animKey = `walk-${cardinal}`;
+    if (!this.scene.anims.exists(animKey)) {
+      console.error(`Walk animation not registered: ${animKey}`);
       this.enterIdle();
       return;
     }
-    if (this.currentAnimationKey !== animationKey) {
-      this.sprite.play(animationKey);
+    if (this.currentAnimationKey !== animKey) {
+      this.sprite.play(animKey);
+      this.sprite.setTexture('walk-sheet');
+      this.sprite.setOrigin(ORIGIN_X, ORIGIN_Y_WALK);
       this.sprite.setDisplaySize(this.baseDisplayWidth, this.baseDisplayHeight);
-      this.currentAnimationKey = animationKey;
+      this.currentAnimationKey = animKey;
     }
-    this.currentDirection = direction;
   }
 
   destroy() {
@@ -216,33 +254,39 @@ export class TravelerController {
     return Boolean(this.keys.W.isDown || this.keys.A.isDown || this.keys.S.isDown || this.keys.D.isDown);
   }
 
-  /** Plays one direction-matched sword swing; the impact callback fires on the slash beat. */
+  /** Plays one direction-matched attack; onImpact fires at the strike frame. */
   playAttack(onImpact?: () => void, targetPosition?: { x: number; y: number }) {
     if (this.attacking) return false;
-    const facing = targetPosition
-      ? this.getAttackDirection(targetPosition.x - this.sprite.x, targetPosition.y - this.sprite.y)
-      : this.getAttackDirectionForFacing(this.currentDirection ?? this.lastDirection);
-    const animationKey = this.getAttackAnimationKey(facing);
-    if (!this.scene.anims.exists(animationKey)) {
-      console.error(`Traveler attack animation is not registered: ${animationKey}`);
+    const cardinal = targetPosition
+      ? this.getCardinalFromDelta(targetPosition.x - this.sprite.x, targetPosition.y - this.sprite.y)
+      : this.lastCardinal;
+    const animKey = `attack-${cardinal}`;
+    if (!this.scene.anims.exists(animKey)) {
+      console.error(`Attack animation not registered: ${animKey}`);
       return false;
     }
 
     this.sprite.anims.stop();
-    this.sprite.setFlipX(facing === 'E');
-    this.sprite.play(animationKey);
-    this.sprite.setDisplaySize(this.baseDisplayWidth, this.baseDisplayHeight);
-    this.currentAnimationKey = animationKey;
-    this.currentDirection = facing;
-    this.lastDirection = facing;
+    this.sprite.setFlipX(false); // no flip — separate sprites per direction
+    this.sprite.play(animKey);
+    this.sprite.setOrigin(ORIGIN_X_ATTACK, ORIGIN_Y_ATTACK);
+    this.sprite.setDisplaySize(
+      this.baseDisplayWidth * ATTACK_FRAME_WIDTH / ATTACK_SOURCE_CELL,
+      this.baseDisplayHeight * ATTACK_FRAME_HEIGHT / ATTACK_SOURCE_CELL,
+    );
+    this.currentAnimationKey = animKey;
+    this.currentDirection = cardinal;
+    this.lastCardinal = cardinal;
     this.attacking = true;
     this.attackHitTimer?.remove(false);
-    this.attackHitTimer = this.scene.time.delayedCall(100, () => {
+    this.attackHitTimer = this.scene.time.delayedCall(120, () => {
       if (this.attacking) onImpact?.();
     });
     this.sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE, this.onAttackComplete, this);
     return true;
   }
+
+  // ── Private helpers ──────────────────────────────────────────────────────
 
   private moveAxis(axis: 'x' | 'y', amount: number) {
     const previous = this.sprite[axis];
@@ -260,11 +304,9 @@ export class TravelerController {
       top: this.sprite.y - bodyHeight * 0.65,
       bottom: this.sprite.y + bodyHeight * 0.35,
     };
-    return (this.options.colliders ?? []).some((collider) =>
-      body.left < collider.x + collider.width &&
-      body.right > collider.x &&
-      body.top < collider.y + collider.height &&
-      body.bottom > collider.y,
+    return (this.options.colliders ?? []).some((c) =>
+      body.left < c.x + c.width && body.right > c.x &&
+      body.top < c.y + c.height && body.bottom > c.y,
     );
   }
 
@@ -275,30 +317,31 @@ export class TravelerController {
     return y < 0 ? 'NE' : 'SE';
   }
 
-  private getAnimationKey(direction: Direction) {
-    return `run-${this.getBaseDirection(direction)}`;
+  /** Map any 8-way direction to its dominant 4-way cardinal. */
+  private toCardinal(direction: Direction): CardinalDir {
+    if (direction === 'N' || direction === 'NW' || direction === 'NE') return 'N';
+    if (direction === 'S' || direction === 'SW' || direction === 'SE') return 'S';
+    if (direction === 'W') return 'W';
+    return 'E';
   }
 
-  private getAttackAnimationKey(direction: 'N' | 'S' | 'W' | 'E') {
-    return `attack-${direction === 'E' ? 'W' : direction}`;
+  private getCardinalFromDelta(dx: number, dy: number): CardinalDir {
+    if (Math.abs(dx) >= Math.abs(dy)) return dx < 0 ? 'W' : 'E';
+    return dy < 0 ? 'N' : 'S';
   }
 
-  private getAttackDirection(x: number, y: number): 'N' | 'S' | 'W' | 'E' {
-    if (Math.abs(x) > Math.abs(y)) return x < 0 ? 'W' : 'E';
-    return y < 0 ? 'N' : 'S';
-  }
-
-  private getAttackDirectionForFacing(direction: Direction): 'N' | 'S' | 'W' | 'E' {
-    const vectors: Record<Direction, [number, number]> = {
-      N: [0, -1], S: [0, 1], W: [-1, 0], E: [1, 0],
-      NW: [-1, -1], NE: [1, -1], SW: [-1, 1], SE: [1, 1],
-    };
-    const [x, y] = vectors[direction];
-    return this.getAttackDirection(x, y);
-  }
-
-  private getBaseDirection(direction: Direction): (typeof RUN_DIRECTIONS)[number] {
-    return direction === 'E' ? 'W' : direction === 'NE' ? 'NW' : direction === 'SE' ? 'SW' : direction;
+  /** Show idle frame for the last direction the character faced. */
+  private enterIdle() {
+    if (this.currentAnimationKey === null && this.currentDirection === null) return;
+    this.cancelAttack();
+    this.sprite.anims.stop();
+    const idleFrame = IDLE_DIR_FRAME[this.lastCardinal];
+    this.sprite.setTexture('idle-sheet', idleFrame);
+    this.sprite.setFlipX(false);
+    this.sprite.setOrigin(ORIGIN_X, ORIGIN_Y_IDLE);
+    this.sprite.setDisplaySize(this.baseDisplayWidth, this.baseDisplayHeight);
+    this.currentDirection = null;
+    this.currentAnimationKey = null;
   }
 
   private readonly onAttackComplete = (animation: Phaser.Animations.Animation) => {
@@ -307,8 +350,8 @@ export class TravelerController {
     this.attackHitTimer?.remove(false);
     this.attackHitTimer = undefined;
     this.currentAnimationKey = null;
-    this.sprite.setOrigin(this.baseOriginX, this.baseOriginY);
-    this.sprite.setDisplaySize(this.baseDisplayWidth, this.baseDisplayHeight);
+    // Return to idle pose with correct origin
+    this.enterIdle();
   };
 
   private cancelAttack() {
@@ -318,19 +361,6 @@ export class TravelerController {
     this.attackHitTimer = undefined;
     this.sprite.off(Phaser.Animations.Events.ANIMATION_COMPLETE, this.onAttackComplete, this);
     this.sprite.anims.stop();
-    this.currentAnimationKey = null;
-    this.sprite.setOrigin(this.baseOriginX, this.baseOriginY);
-    this.sprite.setDisplaySize(this.baseDisplayWidth, this.baseDisplayHeight);
-  }
-
-  private enterIdle() {
-    if (this.currentAnimationKey === null && this.currentDirection === null) return;
-    this.cancelAttack();
-    this.sprite.anims.stop();
-    this.sprite.setTexture(TRAVELER_IDLE_KEY).setFlipX(false)
-      .setOrigin(this.baseOriginX, this.baseOriginY)
-      .setDisplaySize(this.baseDisplayWidth, this.baseDisplayHeight);
-    this.currentDirection = null;
     this.currentAnimationKey = null;
   }
 

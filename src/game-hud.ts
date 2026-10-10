@@ -63,6 +63,8 @@ export class FrontierTownHud {
   private currencyAmount = 0;
   private hpFill!: Phaser.GameObjects.Rectangle;
   private mpFill!: Phaser.GameObjects.Rectangle;
+  private hpValueLabel!: Phaser.GameObjects.Text;
+  private mpValueLabel!: Phaser.GameObjects.Text;
   private hpPotionCountLabel!: Phaser.GameObjects.Text;
   private mpPotionCountLabel!: Phaser.GameObjects.Text;
   private hpPotionNameLabel!: Phaser.GameObjects.Text;
@@ -303,12 +305,14 @@ export class FrontierTownHud {
 
   private buildStatus() {
     this.panel(this.status, 0, 0, 296, 132);
-    const portrait = this.scene.add.image(45, 48, 'traveler-idle').setDisplaySize(54, 62);
+    const portrait = this.scene.add.image(45, 48, 'idle-sheet', 0).setDisplaySize(54, 54);
     this.status.add(portrait);
     this.text(this.status, 82, 12, 'นักเดินทาง', 13, TEXT);
     this.levelLabel = this.text(this.status, 250, 10, 'Lv. 1', 13, '#e4c879').setOrigin(1, 0);
     this.hpFill = this.bar(this.status, 82, 35, 194, 15, 0xb94f48, 'HP');
+    this.hpValueLabel = this.text(this.status, 275, 36, '', 8, '#fff5df').setOrigin(1, 0);
     this.mpFill = this.bar(this.status, 82, 58, 194, 15, 0x4089a0, 'MP');
+    this.mpValueLabel = this.text(this.status, 275, 59, '', 8, '#fff5df').setOrigin(1, 0);
     this.experienceLabel = this.text(this.status, 82, 78, 'EXP 0 / 100', 8, MUTED);
     this.status.add(this.scene.add.rectangle(179, 95, 194, 6, 0x101713, 1).setStrokeStyle(1, 0x9d895a, 0.65));
     this.experienceFill = this.scene.add.rectangle(83, 92, 190, 4, 0xd7b55f, 0.95).setOrigin(0, 0);
@@ -378,8 +382,8 @@ export class FrontierTownHud {
     for (let index = 0; index < 9; index++) {
       this.hotbarSlot(index * 52 + 8, String(index + 1), '', MUTED);
     }
-    const hpSlot = this.hotbarSlot(476, '', '', '#ed7167');
-    const mpSlot = this.hotbarSlot(528, '', '', '#69c5e8');
+    this.hotbarSlot(476, '', '', '#ed7167');
+    this.hotbarSlot(528, '', '', '#69c5e8');
     this.hpPotionCountLabel = this.text(this.hotbar, 510, 8, '', 9, '#ffe1a0').setOrigin(1, 0);
     this.mpPotionCountLabel = this.text(this.hotbar, 562, 8, '', 9, '#b9eaff').setOrigin(1, 0);
     this.hpPotionNameLabel = this.text(this.hotbar, 499, 40, '', 8, TEXT).setOrigin(0.5, 0);
@@ -387,21 +391,15 @@ export class FrontierTownHud {
     this.hpPotionIconLabel = this.scene.add.image(499, 25, 'item-icons', 1).setDisplaySize(26, 26).setVisible(false);
     this.mpPotionIconLabel = this.scene.add.image(551, 25, 'item-icons', 1).setDisplaySize(26, 26).setVisible(false);
     this.hotbar.add([this.hpPotionIconLabel, this.mpPotionIconLabel]);
-    hpSlot.setInteractive({ useHandCursor: true }).on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.button === 0 && !this.activePage) this.usePotionFromHotbar('restoreHp');
-    });
-    mpSlot.setInteractive({ useHandCursor: true }).on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      if (pointer.button === 0 && !this.activePage) this.usePotionFromHotbar('restoreMp');
-    });
   }
 
   private buildActions() {
     this.panel(this.actions, 0, 0, 232, 62);
-    const items: Array<{ page: HudPage; label: string; icon: 'status' | 'bag' | 'map' | 'settings' }> = [
-      { page: 'status', label: 'สถานะ', icon: 'status' },
-      { page: 'inventory', label: 'กระเป๋า', icon: 'bag' },
-      { page: 'map', label: 'แผนที่', icon: 'map' },
-      { page: 'settings', label: 'ตั้งค่า', icon: 'settings' },
+    const items: Array<{ page: HudPage; label: string; textureKey: string }> = [
+      { page: 'status',    label: 'สถานะ',  textureKey: 'ui-icon-status'   },
+      { page: 'inventory', label: 'กระเป๋า', textureKey: 'ui-icon-bag'      },
+      { page: 'map',       label: 'แผนที่',  textureKey: 'ui-icon-map'      },
+      { page: 'settings',  label: 'ตั้งค่า', textureKey: 'ui-icon-settings' },
     ];
     items.forEach((item, index) => {
       const x = 6 + index * 56;
@@ -411,9 +409,8 @@ export class FrontierTownHud {
       button.on('pointerover', () => button.setFillStyle(0x3a493b, 1));
       button.on('pointerout', () => button.setFillStyle(0x28342b, 0.98));
       this.actions.add(button);
-      const glyph = this.scene.add.graphics().lineStyle(2, 0xe6d39d, 1);
-      this.drawActionIcon(glyph, item.icon, x + 26, 21);
-      this.actions.add(glyph);
+      const icon = this.scene.add.image(x + 26, 20, item.textureKey).setDisplaySize(26, 26);
+      this.actions.add(icon);
       this.text(this.actions, x + 26, 43, item.label, 8, TEXT).setOrigin(0.5, 0);
     });
   }
@@ -528,6 +525,24 @@ export class FrontierTownHud {
         return;
       }
     }
+
+    // Potion hotbar slots — HP at local x=476, MP at local x=528 (slot width 46, height 54, y offset 4)
+    if (pointer.button === 0 && !this.activePage) {
+      const slotW = 46 * s;
+      const slotH = 54 * s;
+      const slotY = this.hotbar.y + 4 * s;
+      const hpSlotX = this.hotbar.x + 476 * s;
+      const mpSlotX = this.hotbar.x + 528 * s;
+      if (withinRect(pointer.x, pointer.y, hpSlotX, slotY, slotW, slotH)) {
+        this.usePotionFromHotbar('restoreHp');
+        return;
+      }
+      if (withinRect(pointer.x, pointer.y, mpSlotX, slotY, slotW, slotH)) {
+        this.usePotionFromHotbar('restoreMp');
+        return;
+      }
+    }
+
     if (this.openWindows.size > 0) {
       this.consumedWorldPointer = true;
       return;
@@ -577,35 +592,6 @@ export class FrontierTownHud {
     this.dragStart = null;
   }
 
-  private drawActionIcon(g: Phaser.GameObjects.Graphics, icon: 'status' | 'bag' | 'map' | 'settings', x: number, y: number) {
-    if (icon === 'status') {
-      g.strokeCircle(x, y - 5, 4);
-      g.strokeEllipse(x, y + 6, 17, 10);
-      return;
-    }
-    if (icon === 'bag') {
-      g.strokeRect(x - 8, y - 3, 16, 14);
-      g.lineBetween(x - 4, y - 3, x - 3, y - 8);
-      g.lineBetween(x - 3, y - 8, x + 3, y - 8);
-      g.lineBetween(x + 3, y - 8, x + 4, y - 3);
-      return;
-    }
-    if (icon === 'map') {
-      g.strokeRect(x - 10, y - 8, 20, 16);
-      g.lineBetween(x - 3, y - 8, x - 3, y + 8);
-      g.lineBetween(x + 4, y - 8, x + 4, y + 8);
-      g.strokeCircle(x, y - 1, 2.5);
-      g.lineBetween(x, y + 2, x, y + 5);
-      return;
-    }
-    g.strokeCircle(x, y, 8);
-    g.strokeCircle(x, y, 3);
-    for (let angle = 0; angle < 8; angle++) {
-      const radians = angle * Math.PI / 4;
-      g.lineBetween(x + Math.cos(radians) * 8, y + Math.sin(radians) * 8,
-        x + Math.cos(radians) * 11, y + Math.sin(radians) * 11);
-    }
-  }
 
   private openPage(page: HudPage) {
     this.inventoryContextMenu.setVisible(false);
@@ -830,7 +816,7 @@ export class FrontierTownHud {
     const characterX = paperX + paperWidth / 2;
     const characterY = paneY + paneHeight / 2 + 5;
     this.modal.add(this.scene.add.ellipse(characterX, characterY + 42, 92, 24, 0x54452e, 0.45));
-    this.modal.add(this.scene.add.image(characterX, characterY, 'traveler-idle')
+    this.modal.add(this.scene.add.image(characterX, characterY, 'idle-sheet', 0)
       .setDisplaySize(145, 145).setOrigin(0.5, 0.5));
     const equipment = [
       { id: 'head' as const, label: 'หัว', side: -1, row: 0 },
@@ -1273,6 +1259,8 @@ export class FrontierTownHud {
     this.experienceLabel.setText(`EXP ${snapshot.experience} / ${snapshot.experienceToNext}`);
     this.hpFill.setScale(snapshot.currentHp / snapshot.derived.maxHp, 1);
     this.mpFill.setScale(snapshot.currentMp / snapshot.derived.maxMp, 1);
+    this.hpValueLabel.setText(`${snapshot.currentHp} / ${snapshot.derived.maxHp}`);
+    this.mpValueLabel.setText(`${snapshot.currentMp} / ${snapshot.derived.maxMp}`);
     this.experienceFill.setScale(snapshot.experience / snapshot.experienceToNext, 1);
     if (this.openWindows.has('status')) this.renderPage(this.scene.scale.width, this.scene.scale.height, 'status');
   }

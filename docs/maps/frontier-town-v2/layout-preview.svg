@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 720" width="1040" height="720" font-family="system-ui, sans-serif">
+
+  <!-- Background: grass -->
+  <rect width="1040" height="720" fill="#5a8c3e"/>
+
+  <!-- Road ring (ellipse) center ~26,18 in H → px: 26*20=520, 18*20=360, radii 9*20=180, 8*20=160 -->
+  <!-- Using scale: 1H = 20px for diagram -->
+  <ellipse cx="520" cy="360" rx="180" ry="160" fill="#c8a96e" stroke="#a07840" stroke-width="22" fill-opacity="0"/>
+  <!-- Road ring fill (road color) -->
+  <ellipse cx="520" cy="360" rx="180" ry="160" fill="none" stroke="#c8a96e" stroke-width="20"/>
+
+  <!-- Plaza center -->
+  <rect x="452" y="312" width="136" height="96" rx="6" fill="#d4b87a" stroke="#a07840" stroke-width="2"/>
+  <text x="520" y="358" text-anchor="middle" font-size="11" fill="#5a3a10" font-weight="bold">จัตุรัสกลาง</text>
+  <!-- Fountain -->
+  <circle cx="520" cy="370" r="14" fill="#6ab3c8" stroke="#3a7890" stroke-width="2"/>
+  <circle cx="520" cy="370" r="6" fill="#90d8f0"/>
+
+  <!-- Main road: spawn → plaza -->
+  <rect x="258" y="346" width="194" height="28" fill="#c8a96e" stroke="none"/>
+  <!-- Main road: plaza → gate NE -->
+  <line x1="588" y1="312" x2="780" y2="100" stroke="#c8a96e" stroke-width="24"/>
+
+  <!-- River (bottom-left diagonal) -->
+  <path d="M0,500 Q80,480 120,520 Q160,560 200,540 Q280,500 320,560 Q360,620 440,600 Q500,580 520,620" fill="none" stroke="#3a8fc8" stroke-width="28" stroke-linecap="round"/>
+  <path d="M0,500 Q80,480 120,520 Q160,560 200,540 Q280,500 320,560 Q360,620 440,600 Q500,580 520,620" fill="none" stroke="#5ab0e0" stroke-width="16" stroke-linecap="round"/>
+
+  <!-- ─── SPAWN ZONE buildings (top-left of plaza) ─── -->
+
+  <!-- Item Shop xH=10,yH=15 → px 200,300 size 5×6H = 100×120 -->
+  <rect x="168" y="268" width="100" height="100" rx="8" fill="#8b5e3c" stroke="#5c3a1e" stroke-width="3"/>
+  <rect x="168" y="268" width="100" height="28" rx="4" fill="#a8724a"/>
+  <text x="218" y="287" text-anchor="middle" font-size="11" fill="#fff5e0" font-weight="bold">ร้านค้า</text>
+  <!-- door -->
+  <rect x="203" y="330" width="30" height="38" rx="4" fill="#5c3a1e"/>
+  <!-- sign -->
+  <rect x="176" y="300" width="44" height="18" rx="3" fill="#f0d080" stroke="#a07840" stroke-width="1"/>
+  <text x="198" y="313" text-anchor="middle" font-size="9" fill="#5a3a10">Item Shop</text>
+  <!-- window -->
+  <rect x="234" y="300" width="26" height="22" rx="3" fill="#a8d4e8" stroke="#5c3a1e" stroke-width="1.5"/>
+
+  <!-- Blacksmith xH=17,yH=15 → px 340,300 size 5×6H = 100×120 -->
+  <rect x="328" y="268" width="100" height="100" rx="8" fill="#6b6b6b" stroke="#3a3a3a" stroke-width="3"/>
+  <rect x="328" y="268" width="100" height="28" rx="4" fill="#888"/>
+  <text x="378" y="287" text-anchor="middle" font-size="11" fill="#fff5e0" font-weight="bold">ช่างตีเหล็ก</text>
+  <!-- forge glow -->
+  <ellipse cx="378" cy="345" rx="18" ry="12" fill="#ff8c00" opacity="0.7"/>
+  <ellipse cx="378" cy="345" rx="10" ry="7" fill="#ffcc00" opacity="0.9"/>
+  <!-- door -->
+  <rect x="363" y="330" width="30" height="38" rx="4" fill="#3a3a3a"/>
+  <!-- chimney smoke -->
+  <ellipse cx="410" cy="258" rx="8" ry="6" fill="#aaa" opacity="0.5"/>
+  <ellipse cx="416" cy="246" rx="6" ry="5" fill="#aaa" opacity="0.35"/>
+
+  <!-- Storage/Bank xH=13,yH=21 → px 260,420 size 4×5H = 80×100 -->
+  <rect x="234" y="404" width="80" height="90" rx="8" fill="#4a6b8c" stroke="#2a3a5c" stroke-width="3"/>
+  <rect x="234" y="404" width="80" height="28" rx="4" fill="#5a82a8"/>
+  <text x="274" y="422" text-anchor="middle" font-size="11" fill="#fff5e0" font-weight="bold">คลัง</text>
+  <!-- vault door -->
+  <circle cx="274" cy="460" r="20" fill="#2a3a5c" stroke="#8aa8c8" stroke-width="3"/>
+  <circle cx="274" cy="460" r="12" fill="#1a2a4c" stroke="#6a88a8" stroke-width="2"/>
+  <line x1="274" y1="448" x2="274" y2="472" stroke="#8aa8c8" stroke-width="2"/>
+  <line x1="262" y1="460" x2="286" y2="460" stroke="#8aa8c8" stroke-width="2"/>
+
+  <!-- ─── Spawn point marker ─── -->
+  <circle cx="280" cy="360" r="18" fill="#ffe566" stroke="#c8a030" stroke-width="3" opacity="0.9"/>
+  <circle cx="280" cy="360" r="10" fill="#fff0a0"/>
+  <text x="280" y="365" text-anchor="middle" font-size="11" fill="#7a5000" font-weight="bold">★</text>
+  <text x="280" y="390" text-anchor="middle" font-size="10" fill="#fff5e0" font-weight="bold">จุดเกิด</text>
+
+  <!-- Road from spawn to plaza -->
+  <!-- (already drawn above) -->
+
+  <!-- ─── Trees scattered ─── -->
+  <!-- top-left cluster -->
+  <circle cx="80" cy="160" r="30" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="80" cy="160" r="14" fill="#3d8e3d"/>
+  <circle cx="130" cy="130" r="24" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="50" cy="220" r="28" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="50" cy="220" r="12" fill="#3d8e3d"/>
+  <!-- top-right cluster -->
+  <circle cx="900" cy="120" r="32" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="950" cy="80" r="24" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="960" cy="160" r="28" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <!-- bottom-right cluster -->
+  <circle cx="880" cy="560" r="28" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="940" cy="520" r="22" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <!-- scattered -->
+  <circle cx="620" cy="550" r="26" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="700" cy="500" r="20" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="160" cy="540" r="24" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+  <circle cx="100" cy="480" r="20" fill="#2d6e2d" stroke="#1a4a1a" stroke-width="2"/>
+
+  <!-- ─── Warp Gate NE ─── -->
+  <rect x="746" y="80" width="60" height="70" rx="6" fill="none" stroke="#a060e0" stroke-width="3"/>
+  <rect x="758" y="84" width="36" height="62" rx="4" fill="#c890f8" opacity="0.35"/>
+  <!-- gate pillars -->
+  <rect x="746" y="78" width="12" height="74" rx="3" fill="#8040c0" stroke="#6020a0" stroke-width="2"/>
+  <rect x="794" y="78" width="12" height="74" rx="3" fill="#8040c0" stroke="#6020a0" stroke-width="2"/>
+  <!-- gate top arch -->
+  <path d="M746,84 Q776,60 806,84" fill="none" stroke="#c890f8" stroke-width="4"/>
+  <text x="776" y="168" text-anchor="middle" font-size="10" fill="#e0c0ff" font-weight="bold">ประตูออก</text>
+
+  <!-- ─── Other buildings (far side of plaza) ─── -->
+  <!-- Community Hall top-center -->
+  <rect x="456" y="200" width="128" height="90" rx="8" fill="#7a5c3c" stroke="#4a3020" stroke-width="3"/>
+  <rect x="456" y="200" width="128" height="30" rx="4" fill="#9a7250"/>
+  <text x="520" y="220" text-anchor="middle" font-size="11" fill="#fff5e0" font-weight="bold">ศาลากลาง</text>
+  <!-- columns -->
+  <rect x="472" y="230" width="10" height="60" rx="2" fill="#c8a070"/>
+  <rect x="510" y="230" width="10" height="60" rx="2" fill="#c8a070"/>
+  <rect x="548" y="230" width="10" height="60" rx="2" fill="#c8a070"/>
+  <rect x="566" y="230" width="10" height="60" rx="2" fill="#c8a070"/>
+
+  <!-- Houses east of plaza -->
+  <rect x="660" y="280" width="70" height="70" rx="6" fill="#8b6b4a" stroke="#5c3a1e" stroke-width="2"/>
+  <rect x="660" y="280" width="70" height="22" rx="4" fill="#a8845a"/>
+  <text x="695" y="296" text-anchor="middle" font-size="9" fill="#fff5e0">บ้าน</text>
+
+  <rect x="660" y="380" width="70" height="70" rx="6" fill="#8b6b4a" stroke="#5c3a1e" stroke-width="2"/>
+  <rect x="660" y="380" width="70" height="22" rx="4" fill="#a8845a"/>
+  <text x="695" y="396" text-anchor="middle" font-size="9" fill="#fff5e0">บ้าน</text>
+
+  <!-- Watchpost -->
+  <rect x="740" y="300" width="50" height="80" rx="4" fill="#6b7b4a" stroke="#3a4a20" stroke-width="2"/>
+  <rect x="730" y="296" width="70" height="16" rx="3" fill="#8b9b5a"/>
+  <text x="765" y="308" text-anchor="middle" font-size="9" fill="#fff5e0">หอสังเกต</text>
+
+  <!-- ─── Labels ─── -->
+  <text x="8" y="18" font-size="14" fill="#fff5e0" font-weight="bold">Frontier Town v2 — Layout Preview</text>
+  <text x="8" y="36" font-size="10" fill="#c8e8a8">1H = 20px (diagram) · map 52×36H · pixelsPerH=110 in game</text>
+
+  <!-- Legend -->
+  <rect x="8" y="640" width="500" height="72" rx="6" fill="#00000066"/>
+  <circle cx="28" cy="658" r="7" fill="#ffe566" stroke="#c8a030" stroke-width="2"/>
+  <text x="42" y="663" font-size="10" fill="#fff5e0">จุดเกิด</text>
+  <rect x="90" y="650" width="16" height="16" rx="2" fill="#8b5e3c"/>
+  <text x="112" y="663" font-size="10" fill="#fff5e0">ร้านค้า</text>
+  <rect x="168" y="650" width="16" height="16" rx="2" fill="#6b6b6b"/>
+  <text x="190" y="663" font-size="10" fill="#fff5e0">ช่างตีเหล็ก</text>
+  <rect x="268" y="650" width="16" height="16" rx="2" fill="#4a6b8c"/>
+  <text x="290" y="663" font-size="10" fill="#fff5e0">คลัง</text>
+  <rect x="330" y="650" width="16" height="16" rx="2" fill="#8040c0"/>
+  <text x="352" y="663" font-size="10" fill="#fff5e0">ประตูออก</text>
+  <rect x="420" y="650" width="16" height="16" rx="2" fill="#2d6e2d"/>
+  <text x="442" y="663" font-size="10" fill="#fff5e0">ต้นไม้</text>
+
+  <text x="28" y="690" font-size="10" fill="#c8e8a8">ร้านค้า+ช่างตีเหล็ก+คลัง อยู่รัศมี ~4H รอบจุดเกิด (★)</text>
+  <text x="28" y="704" font-size="10" fill="#c8e8a8">ถนนหลักเชื่อม spawn → จัตุรัสกลาง → ประตูออก NE</text>
+
+</svg>
